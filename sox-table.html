@@ -4,9 +4,9 @@
       color: '#a6bbcf',
       defaults: {
           name: {value:""},
-          prefix: {value:""}
+          url: {value:"", required:true}
       },
-      inputs:1,
+      inputs:0,
       outputs:1,
       icon: "file.png",
       label: function() {
@@ -17,8 +17,8 @@
 
 <script type="text/html" data-template-name="sox-table">
   <div class="form-row">
-    <label for="node-input-prefix"><i class="fa fa-tag"></i> Prefix</label>
-    <input type="text" id="node-input-prefix">
+    <label for="node-input-url"><i class="fa fa-globe"></i> <span>URL</span></label>
+    <input id="node-input-url" type="text" placeholder="/url">
   </div>
   <div class="form-row">
       <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>

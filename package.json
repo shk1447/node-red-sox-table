@@ -1,13 +1,15 @@
 {
   "name": "node-red-sox-table",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "node-red": {
     "nodes": {
       "sox-table": "sox-table.js"
     }
   },
-  "keywords": ["node-red"],
+  "keywords": [
+    "node-red"
+  ],
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -21,5 +23,13 @@
   "bugs": {
     "url": "https://github.com/shk1447/node-red-sox-table/issues"
   },
-  "homepage": "https://github.com/shk1447/node-red-sox-table#readme"
+  "homepage": "https://github.com/shk1447/node-red-sox-table#readme",
+  "dependencies": {
+    "knex": "^0.95.4",
+    "mssql": "^6.3.1",
+    "mysql": "^2.18.1",
+    "oracledb": "^5.1.0",
+    "pg": "^8.6.0",
+    "sqlite3": "^5.0.2"
+  }
 }
