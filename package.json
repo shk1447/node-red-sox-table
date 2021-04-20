@@ -1,6 +1,6 @@
 {
   "name": "node-red-sox-table",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "",
   "node-red": {
     "nodes": {
