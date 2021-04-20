@@ -4,6 +4,8 @@ module.exports = function(RED) {
   var cookieParser = require("cookie-parser");
   var cors = require('cors');
   var onHeaders = require('on-headers');
+
+  var knex = require('knex');
   
   function createResponseWrapper(node,res) {
       var wrapper = {
@@ -68,6 +70,34 @@ module.exports = function(RED) {
         }
         this.method = 'get';
 
+        this.dbtype = n.dbtype;
+        this.host = n.host;
+        this.port = n.port;
+        this.user = n.user;
+        this.password = n.password;
+        this.database = n.database;
+        this.table = n.table;
+        this.props = n.props;
+
+        this.query = "SELECT "
+
+        this.props.forEach((v, k) => {
+          this.query += v.p + ','
+        })
+
+        this.query = this.query.substring(0,this.query.length-1)
+        this.query += " FROM " + this.table;
+
+        this.dbconn = knex({
+          client:this.dbtype,
+          connection: {
+            host:this.host,
+            port:this.port,
+            user:this.user,
+            password:this.password,
+            database:this.database
+          }
+        });
         var node = this;
 
         this.errorHandler = function(err,req,res,next) {
@@ -78,7 +108,11 @@ module.exports = function(RED) {
         this.callback = function(req,res) {
             var msgid = RED.util.generateId();
             res._msgid = msgid;
-            node.send({_msgid:msgid,req:req,res:createResponseWrapper(node,res),payload:req.query});
+            node.dbconn.raw(node.query).then((rows) => {
+              node.send({_msgid:msgid,req:req,res:createResponseWrapper(node,res),payload:{query:req.query,result:rows}});
+            }).catch((err) => {
+              node.send({_msgid:msgid,req:req,res:createResponseWrapper(node,res),payload:{query:req.query,error:err}});
+            })
         };
 
         var httpMiddleware = function(req,res,next) { next(); }
