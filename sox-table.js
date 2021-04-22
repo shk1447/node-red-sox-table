@@ -77,7 +77,20 @@ module.exports = function (RED) {
             this.password = n.password;
             this.database = n.database;
             this.query = n.query;
-            this.props = n.props;
+            this.headers = [];
+            this.styles = {};
+            n.options.forEach((v, k) => {
+                this.headers.push({
+                    text: v.text,
+                    value: v.value,
+                })
+                this.styles[v.value] = {
+                    background: v.background,
+                    fontColor: v.fontColor,
+                    fontSize: v.fontSize,
+                    fontWeight: v.fontWeight
+                }
+            })
 
             this.dbconn = knex({
                 client: this.dbtype,
@@ -97,11 +110,10 @@ module.exports = function (RED) {
             };
 
             this.callback = function (req, res) {
-                console.log(node.props)
                 var msgid = RED.util.generateId();
                 res._msgid = msgid;
                 node.dbconn.raw(node.query).then((rows) => {
-                    node.send({ _msgid: msgid, req: req, res: createResponseWrapper(node, res), payload: { query: req.query, result: rows } });
+                    node.send({ _msgid: msgid, req: req, res: createResponseWrapper(node, res), payload: { headers: node.headers, styles: node.styles, items: rows[0] } });
                 }).catch((err) => {
                     node.send({ _msgid: msgid, req: req, res: createResponseWrapper(node, res), payload: { query: req.query, error: err } });
                 })

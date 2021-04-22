@@ -15,11 +15,7 @@
         table: { value: "" },
         query: { value: "" },
         options: {
-          value: [{ value: '', label: '' }],
-          validate: function (v) {
-            var unique = new Set(v.map(function (o) { return o.value; }));
-            return v.length == unique.size;
-          }
+          value: [{ text: '', value: '', background: '', fontColor: '', fontSize: '', fontWeight: '' }],
         },
       },
       inputs: 0,
@@ -29,6 +25,7 @@
         return this.name || "sox-table";
       },
       oneditprepare: function () {
+        console.log('debug')
         var that = this;
 
         var tabs = RED.tabs.create({
@@ -57,11 +54,91 @@
           value: $("#node-input-query").val()
         });
         this.editor.focus();
+
+        function generateOption(i, option) {
+          var container = $('<li/>', { style: "background: #fff; margin:0; padding:8px 0px 0px; border-bottom: 1px solid #ccc;" });
+          var row = $('<div/>').appendTo(container);
+          var row2 = $('<div/>', { style: "padding-top:5px; padding-left:175px;" }).appendTo(container);
+          var row3 = $('<div/>', { style: "padding-top:5px; padding-left:120px;" }).appendTo(container);
+
+          $('<i style="color:#eee; cursor:move; margin-left:3px;" class="node-input-option-handle fa fa-bars"></i>').appendTo(row);
+
+          var textField = $('<input/>', { class: "node-input-option-text", type: "text", style: "margin-left:7px; width:calc(50% - 32px);", placeholder: 'text', value: option.text }).appendTo(row);
+          var valueField = $('<input/>', { class: "node-input-option-value", type: "text", style: "margin-left:7px; width:calc(50% - 32px);", placeholder: 'value', value: option.value }).appendTo(row);
+
+          var finalspan = $('<span/>', { style: "float:right; margin-right:8px;" }).appendTo(row);
+          var deleteButton = $('<a/>', { href: "#", class: "editor-button editor-button-small", style: "margin-top:7px; margin-left:5px;" }).appendTo(finalspan);
+          $('<i/>', { class: "fa fa-remove" }).appendTo(deleteButton);
+
+          deleteButton.click(function () {
+            container.css({ "background": "#fee" });
+            container.fadeOut(300, function () {
+              $(this).remove();
+              $('#header-style-' + i).remove();
+            });
+          });
+
+          $("#node-input-option-container").append(container);
+        }
+
+        function generateStyle(i, styles) {
+          var container = $('<li id="header-style-' + i + '"/>', { style: "background: #fff; margin:0; padding:8px 0px 0px; border-bottom: 1px solid #ccc;" });
+          var row = $('<div/>').appendTo(container);
+          var row2 = $('<div/>', { style: "padding-top:5px; padding-left:175px;" }).appendTo(container);
+          var row3 = $('<div/>', { style: "padding-top:5px; padding-left:120px;" }).appendTo(container);
+
+          $('<i style="color:#eee; cursor:move; margin-left:3px;" class="node-input-option-handle fa fa-bars"></i>').appendTo(row);
+
+          var backgroundField = $('<input/>', { class: "node-input-option-background", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'background', value: styles.background }).appendTo(row);
+          var fontColorField = $('<input/>', { class: "node-input-option-fontColor", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font color', value: styles.fontColor }).appendTo(row);
+          var fontSizeField = $('<input/>', { class: "node-input-option-fontSize", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font size', value: styles.fontSize }).appendTo(row);
+          var fontWeightField = $('<input/>', { class: "node-input-option-fontWeight", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font weight', value: styles.fontWeight }).appendTo(row);
+
+          $("#node-input-style-container").append(container);
+        }
+
+        $("#node-input-add-option").click(function () {
+          generateOption($("#node-input-option-container").children().length + 1, {});
+          generateStyle($("#node-input-style-container").children().length + 1, {});
+          $("#node-input-option-container-div").scrollTop($("#node-input-option-container-div").get(0).scrollHeight);
+          $("#node-input-style-container-div").scrollTop($("#node-input-style-container-div").get(0).scrollHeight);
+        });
+
+        for (var i = 0; i < this.options.length; i++) {
+          var option = this.options[i];
+          generateOption(i + 1, option);
+          generateStyle(i + 1, option);
+        }
+        console.log(this.options);
+
+        // $("#node-input-option-container").sortable({
+        //   axis: "y",
+        //   handle: ".node-input-option-handle",
+        //   cursor: "move"
+        // });
       },
       oneditsave() {
         $("#node-input-query").val(this.editor.getValue());
         this.editor.destroy();
         delete this.editor;
+
+        var options = $("#node-input-option-container").children();
+        var styles = $("#node-input-style-container").children();
+        var node = this;
+        node.options = [];
+        options.each(function (i) {
+          var option = $(this);
+          var style = $(styles[i]);
+          var o = {
+            text: option.find(".node-input-option-text").val(),
+            value: option.find(".node-input-option-value").val(),
+            background: style.find('.node-input-option-background').val(),
+            fontColor: style.find('.node-input-option-fontColor').val(),
+            fontSize: style.find('.node-input-option-fontSize').val(),
+            fontWeight: style.find('.node-input-option-fontWeight').val()
+          };
+          node.options.push(o);
+        });
       },
       oneditcancel: function () {
         this.editor.destroy();
@@ -142,6 +219,21 @@
     </div>
 
     <div id="func-tab-options" style="display:none">
+      <div class="form-row node-input-option-container-row" style="margin-bottom: 0px;width: 100%">
+        <label for="node-input-width" style="vertical-align:top"><i class="fa fa-list-alt"></i> Headers (Styles)</label>
+        <div id="node-input-option-container-div"
+          style="box-sizing:border-box; border-radius:5px; height:257px; padding:5px; border:1px solid #ccc; overflow-y:scroll; display:inline-block; width:100%">
+          <ol id="node-input-option-container" style="list-style-type:none; margin:0;"></ol>
+        </div>
+        <div id="node-input-style-container-div"
+          style="box-sizing:border-box; border-radius:5px; height:257px; padding:5px; border:1px solid #ccc; overflow-y:scroll; display:inline-block; width:100%">
+          <ol id="node-input-style-container" style="list-style-type:none; margin:0;"></ol>
+        </div>
+      </div>
+      <div class="form-row">
+        <a href="#" class="editor-button editor-button-small" id="node-input-add-option"
+          style="margin-top:4px;"><i class="fa fa-plus"></i> <span>HEADER</span></a>
+      </div>
     </div>
 
   </div>
