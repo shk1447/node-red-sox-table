@@ -1,6 +1,6 @@
 {
   "name": "node-red-sox-table",
-  "version": "1.1.5",
+  "version": "1.1.11",
   "description": "",
   "node-red": {
     "nodes": {
@@ -31,6 +31,7 @@
     "knex": "^0.95.4",
     "mssql": "^6.3.1",
     "mysql": "^2.18.1",
+    "node-red-sox-table": "^1.1.9",
     "on-headers": "^1.0.2",
     "oracledb": "^5.1.0",
     "pg": "^8.6.0",

@@ -1,175 +1,149 @@
 <script type="text/javascript">
-(function() {
-  function resizeDialog(size) {
-    size = size || { height: $(".red-ui-tray-content form").height() }
-    var rows = $("#dialog-form>div:not(.node-input-property-container-row):visible");
-    var height = size.height;
-    for (var i=0; i<rows.length; i++) {
-        height -= $(rows[i]).outerHeight(true);
-    }
-    var editorRow = $("#dialog-form>div.node-input-property-container-row");
-    height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
-    height += 16;
-    $("#node-input-property-container").editableList('height',height);
-  }
-
-  RED.nodes.registerType('sox-table',{
+  (function () {
+    RED.nodes.registerType('sox-table', {
       category: 'network',
       color: '#a6bbcf',
       defaults: {
-          name: {value:""},
-          url: {value:"", required:true},
-          dbtype: {value:""},
-          host: {value:""},
-          port: {value:""},
-          user: {value:""},
-          password: {value:""},
-          database: {value:""},
-          table: {value:""},
-          props:{value:[]},
+        name: { value: "" },
+        url: { value: "", required: true },
+        dbtype: { value: "" },
+        host: { value: "" },
+        port: { value: "" },
+        user: { value: "" },
+        password: { value: "" },
+        database: { value: "" },
+        table: { value: "" },
+        query: { value: "" },
+        options: {
+          value: [{ value: '', label: '' }],
+          validate: function (v) {
+            var unique = new Set(v.map(function (o) { return o.value; }));
+            return v.length == unique.size;
+          }
+        },
       },
-      inputs:0,
-      outputs:1,
+      inputs: 0,
+      outputs: 1,
       icon: "file.png",
-      label: function() {
-          return this.name||"sox-table";
+      label: function () {
+        return this.name || "sox-table";
       },
-      oneditprepare: function() {
-        console.log('sox-table debug console')
-        $('#node-input-property-container').css('min-height','120px').css('min-width','450px').editableList({
-          addItem: function(container,i,opt) {
-              var prop = opt;
-              if (!prop.hasOwnProperty('p')) {
-                  prop = {p:"",v:"",vt:"json"};
-              }
-              container.css({
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap'
-              });
-              var row = $('<div/>').appendTo(container);
+      oneditprepare: function () {
+        var that = this;
 
-              var propertyName = $('<input/>',{class:"node-input-prop-property-name",type:"text"})
-                  .css("width","30%")
-                  .appendTo(row)
-                  .typedInput({types:['str']});
-
-              $('<div/>',{style: 'display:inline-block; padding:0px 6px;'})
-                  .text('=')
-                  .appendTo(row);
-
-              var propertyValue = $('<input/>',{class:"node-input-prop-property-value",type:"text"})
-                  .css("width","calc(70% - 30px)")
-                  .appendTo(row)
-                  .typedInput({default:'json',types:['str','json']});
-
-              propertyName.typedInput('value',prop.p);
-
-              propertyValue.typedInput('value',prop.v);
-              propertyValue.typedInput('type',prop.vt);
-          },
-          removable: true,
-          sortable: true
+        var tabs = RED.tabs.create({
+          id: "func-tabs",
+          onchange: function (tab) {
+            $("#func-tabs-content").children().hide();
+            $("#" + tab.id).show();
+          }
+        });
+        tabs.addTab({
+          id: "func-tab-config",
+          iconClass: "fa fa-cog",
+          label: "DATABASE"
+        });
+        tabs.addTab({
+          id: "func-tab-options",
+          iconClass: "fa fa-cog",
+          label: "OPTIONS"
         });
 
-        for (var i=0; i<this.props.length; i++) {
-          var prop = this.props[i];
-          var newProp = { p: prop.p, v: prop.v, vt: prop.vt };
-          if (newProp.v === undefined) {
-            if (prop.p === 'payload') {
-              newProp.v = this.payload ? this.payload : '';
-              newProp.vt = this.payloadType ? this.payloadType : 'date';
-            } else if (prop.p === 'topic' && prop.vt === "str") {
-              newProp.v =  this.topic ? this.topic : '';
-            }
-          }
-          $("#node-input-property-container").editableList('addItem',newProp);
-        }
+        tabs.activateTab("func-tab-config");
+
+        this.editor = RED.editor.createEditor({
+          id: 'node-input-query-editor',
+          mode: 'ace/mode/sql',
+          value: $("#node-input-query").val()
+        });
+        this.editor.focus();
       },
       oneditsave() {
-        var props = $("#node-input-property-container").editableList('items');
-        var node = this;
-        node.props= [];
-        delete node.payloadType;
-        delete node.payload;
-        node.topic = "";
-        props.each(function(i) {
-            var prop = $(this);
-            var p = {
-                p:prop.find(".node-input-prop-property-name").typedInput('value')
-            };
-            if (p.p) {
-                p.v = prop.find(".node-input-prop-property-value").typedInput('value');
-                p.vt = prop.find(".node-input-prop-property-value").typedInput('type');
-                if (p.p === "payload") { // save payload to old "legacy" property
-                    node.payloadType = p.vt;
-                    node.payload = p.v;
-                    delete p.v;
-                    delete p.vt;
-                } else if (p.p === "topic" && p.vt === "str") {
-                    node.topic = p.v;
-                    delete p.v;
-                }
-                node.props.push(p);
-            }
-        });
+        $("#node-input-query").val(this.editor.getValue());
+        this.editor.destroy();
+        delete this.editor;
       },
-      oneditresize: resizeDialog
-  });
-})()
+      oneditcancel: function () {
+        this.editor.destroy();
+        delete this.editor;
+      },
+      oneditresize: function (size) {
+        var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+        var height = $("#dialog-form").height();
+        for (var i = 0; i < rows.length; i++) {
+          height -= $(rows[i]).outerHeight(true);
+        }
+        var editorRow = $("#dialog-form>div.node-text-editor-row");
+        height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
+        $(".node-text-editor").css("height", height + "px");
+        this.editor.resize();
+      }
+    });
+  })()
 </script>
 
 <script type="text/html" data-template-name="sox-table">
-  <div class="form-row">
-    <label for="node-input-url"><i class="fa fa-globe"></i> <span>URL</span></label>
-    <input id="node-input-url" type="text" placeholder="/url">
-  </div>
   <div class="form-row">
     <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Name">
   </div>
 
-  <div class="form-row">
-    <label for="node-input-dbtype"><i class="fa fa-tasks"></i> <span>DB TYPE</span></label>
-    <select type="text" id="node-input-dbtype" style="width:70%;">
-      <option value="pg">PostgreSQL</option>
-      <option value="mysql">MYSQL</option>
-      <option value="mssql">MSSQL</option>
-      <option value="oracledb">ORACLEDB</option>
-    </select>
+  <div class="form-row func-tabs-row">
+    <ul style="min-width: 600px; margin-bottom: 20px;" id="func-tabs"></ul>
   </div>
 
-  <div class="form-row">
-    <label for="node-input-host"><i class="fa fa-tag"></i> HOST</label>
-    <input type="text" id="node-input-host" placeholder="127.0.0.1">
-  </div>
+  <div id="func-tabs-content" style="min-height: calc(100% - 95px);">
+  
+    <div id="func-tab-config" style="display:none">
+      <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-globe"></i> <span>URL</span></label>
+        <input id="node-input-url" type="text" placeholder="/url">
+      </div>
 
-  <div class="form-row">
-    <label for="node-input-port"><i class="fa fa-tag"></i> PORT</label>
-    <input type="number" id="node-input-port" placeholder="3306">
-  </div>
+      <div class="form-row">
+        <label for="node-input-dbtype"><i class="fa fa-tag"></i> <span>DB TYPE</span></label>
+        <select type="text" id="node-input-dbtype" style="width:70%;">
+          <option value="pg">PostgreSQL</option>
+          <option value="mysql">MYSQL</option>
+          <option value="mssql">MSSQL</option>
+          <option value="oracledb">ORACLEDB</option>
+        </select>
+      </div>
 
-  <div class="form-row">
-    <label for="node-input-user"><i class="fa fa-tag"></i> USER</label>
-    <input type="text" id="node-input-user" placeholder="User">
-  </div>
+      <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-tag"></i> HOST</label>
+        <input type="text" id="node-input-host" placeholder="127.0.0.1">
+      </div>
 
-  <div class="form-row">
-    <label for="node-input-password"><i class="fa fa-tag"></i> PASSWORD</label>
-    <input type="password" id="node-input-password" placeholder="Password">
-  </div>
+      <div class="form-row">
+        <label for="node-input-port"><i class="fa fa-tag"></i> PORT</label>
+        <input type="number" id="node-input-port" placeholder="3306">
+      </div>
 
-  <div class="form-row">
-    <label for="node-input-database"><i class="fa fa-tag"></i> DATABASE</label>
-    <input type="text" id="node-input-database" placeholder="Database">
-  </div>
+      <div class="form-row">
+        <label for="node-input-user"><i class="fa fa-tag"></i> USER</label>
+        <input type="text" id="node-input-user" placeholder="User">
+      </div>
 
-  <div class="form-row">
-    <label for="node-input-table"><i class="fa fa-tag"></i> TABLE</label>
-    <input type="text" id="node-input-table" placeholder="Table Name">
-  </div>
+      <div class="form-row">
+        <label for="node-input-password"><i class="fa fa-tag"></i> PASSWORD</label>
+        <input type="password" id="node-input-password" placeholder="Password">
+      </div>
 
-  <div class="form-row node-input-property-container-row">
-    <ol id="node-input-property-container"></ol>
+      <div class="form-row">
+        <label for="node-input-database"><i class="fa fa-tag"></i> DATABASE</label>
+        <input type="text" id="node-input-database" placeholder="Database">
+      </div>
+
+      <div class="form-row node-text-editor-row">
+        <input type="hidden" id="node-input-query" autofocus="autofocus">
+        <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-query-editor"></div>
+      </div>
+    </div>
+
+    <div id="func-tab-options" style="display:none">
+    </div>
+
   </div>
 </script>
 
