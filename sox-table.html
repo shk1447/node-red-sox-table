@@ -15,7 +15,7 @@
         table: { value: "" },
         query: { value: "" },
         options: {
-          value: [{ text: '', value: '', background: '', fontColor: '', fontSize: '', fontWeight: '' }],
+          value: [{ text: '', value: '', background: '', color: '', fontSize: '', fontWeight: '' }],
         },
       },
       inputs: 0,
@@ -90,7 +90,7 @@
           $('<i style="color:#eee; cursor:move; margin-left:3px;" class="node-input-option-handle fa fa-bars"></i>').appendTo(row);
 
           var backgroundField = $('<input/>', { class: "node-input-option-background", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'background', value: styles.background }).appendTo(row);
-          var fontColorField = $('<input/>', { class: "node-input-option-fontColor", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font color', value: styles.fontColor }).appendTo(row);
+          var colorField = $('<input/>', { class: "node-input-option-color", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font color', value: styles.color }).appendTo(row);
           var fontSizeField = $('<input/>', { class: "node-input-option-fontSize", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font size', value: styles.fontSize }).appendTo(row);
           var fontWeightField = $('<input/>', { class: "node-input-option-fontWeight", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font weight', value: styles.fontWeight }).appendTo(row);
 
@@ -133,7 +133,7 @@
             text: option.find(".node-input-option-text").val(),
             value: option.find(".node-input-option-value").val(),
             background: style.find('.node-input-option-background').val(),
-            fontColor: style.find('.node-input-option-fontColor').val(),
+            color: style.find('.node-input-option-color').val(),
             fontSize: style.find('.node-input-option-fontSize').val(),
             fontWeight: style.find('.node-input-option-fontWeight').val()
           };

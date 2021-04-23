@@ -85,10 +85,10 @@ module.exports = function (RED) {
                     value: v.value,
                 })
                 this.styles[v.value] = {
-                    background: v.background,
-                    fontColor: v.fontColor,
-                    fontSize: v.fontSize,
-                    fontWeight: v.fontWeight
+                    background: "`" + v.background + "`",
+                    color: "`" + v.color + "`",
+                    fontSize: "`" + v.fontSize + "`",
+                    fontWeight: "`" + v.fontWeight + "`"
                 }
             })
 
