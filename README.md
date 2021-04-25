@@ -6,3 +6,6 @@
 - cd ~/.node-red/
 - npm install --save node-red-sox-table
 - node-red
+
+## Furture Feature
+- support sqlite 
