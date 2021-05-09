@@ -83,7 +83,7 @@
         }
 
         function generateStyle(i, styles) {
-          var container = $('<li/>', { style: "background: #fff; margin:0; padding:8px 0px 0px; border-bottom: 1px solid #ccc;" });
+          var container = $('<li  id="header-style-' + i + ' />', { style: "background: #fff; margin:0; padding:8px 0px 0px; border-bottom: 1px solid #ccc;" });
           var row = $('<div/>').appendTo(container);
           var row2 = $('<div/>', { style: "padding-top:5px; padding-left:175px;" }).appendTo(container);
           var row3 = $('<div/>', { style: "padding-top:5px; padding-left:120px;" }).appendTo(container);
