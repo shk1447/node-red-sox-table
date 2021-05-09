@@ -14,8 +14,9 @@
         database: { value: "" },
         table: { value: "" },
         query: { value: "" },
+        color1: { value: "" },
         options: {
-          value: [{ text: '', value: '', background: '#fff', color: '#000', fontSize: '', fontWeight: '' }],
+          value: [{ text: '', value: '', background: '', fontColor: '', fontSize: '', fontWeight: '' }],
         },
       },
       inputs: 0,
@@ -82,7 +83,7 @@
         }
 
         function generateStyle(i, styles) {
-          var container = $('<li id="header-style-' + i + '"/>', { style: "background: #fff; margin:0; padding:8px 0px 0px; border-bottom: 1px solid #ccc;" });
+          var container = $('<li/>', { style: "background: #fff; margin:0; padding:8px 0px 0px; border-bottom: 1px solid #ccc;" });
           var row = $('<div/>').appendTo(container);
           var row2 = $('<div/>', { style: "padding-top:5px; padding-left:175px;" }).appendTo(container);
           var row3 = $('<div/>', { style: "padding-top:5px; padding-left:120px;" }).appendTo(container);
@@ -90,9 +91,26 @@
           $('<i style="color:#eee; cursor:move; margin-left:3px;" class="node-input-option-handle fa fa-bars"></i>').appendTo(row);
 
           var backgroundField = $('<input/>', { class: "node-input-option-background", type: "color", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'background', value: styles.background }).appendTo(row);
-          var colorField = $('<input/>', { class: "node-input-option-color", type: "color", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font color', value: styles.color }).appendTo(row);
+          var fontColorField = $('<input/>', { class: "node-input-option-fontColor", type: "color", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font color', value: styles.fontColor }).appendTo(row);
           var fontSizeField = $('<input/>', { class: "node-input-option-fontSize", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font size', value: styles.fontSize }).appendTo(row);
           var fontWeightField = $('<input/>', { class: "node-input-option-fontWeight", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font weight', value: styles.fontWeight }).appendTo(row);
+
+          var finalspan = $('<span/>', { style: "float:right; margin-right:8px;" }).appendTo(row);
+          var changeButton = $('<a/>', { href: "#", class: "editor-button editor-button-small", style: "margin-top:7px; margin-left:5px;" }).appendTo(finalspan);
+          $('<i/>', { class: "fa fa-cog" }).appendTo(changeButton);
+
+          changeButton.click(function (e) {
+            if (backgroundField.attr('type') == 'color') {
+              backgroundField.attr('type', 'text')
+            } else {
+              backgroundField.attr('type', 'color')
+            }
+            if (fontColorField.attr('type') == 'color') {
+              fontColorField.attr('type', 'text')
+            } else {
+              fontColorField.attr('type', 'color')
+            }
+          })
 
           $("#node-input-style-container").append(container);
         }
@@ -111,6 +129,9 @@
         }
         console.log(this.options);
 
+        $('#style-change-btn').click(function (e) {
+          console.log(e);
+        })
         // $("#node-input-option-container").sortable({
         //   axis: "y",
         //   handle: ".node-input-option-handle",
@@ -133,7 +154,7 @@
             text: option.find(".node-input-option-text").val(),
             value: option.find(".node-input-option-value").val(),
             background: style.find('.node-input-option-background').val(),
-            color: style.find('.node-input-option-color').val(),
+            fontColor: style.find('.node-input-option-fontColor').val(),
             fontSize: style.find('.node-input-option-fontSize').val(),
             fontWeight: style.find('.node-input-option-fontWeight').val()
           };
@@ -220,13 +241,24 @@
 
     <div id="func-tab-options" style="display:none">
       <div class="form-row node-input-option-container-row" style="margin-bottom: 0px;width: 100%">
-        <label for="node-input-width" style="vertical-align:top"><i class="fa fa-list-alt"></i> Headers (Styles)</label>
+        <label for="node-input-width" style="vertical-align:top"><i class="fa fa-list-alt"></i> Headers</label>
         <div id="node-input-option-container-div"
           style="box-sizing:border-box; border-radius:5px; height:257px; padding:5px; border:1px solid #ccc; overflow-y:scroll; display:inline-block; width:100%">
+          <div style="width:calc(100% - 55px);height:32px;display: flex;align-items: center; justify-content: center; border: 1px solid #efefef; text-align: center; position:sticky; top:0; background: white;margin-left: 20px;">
+            <div style="flex:1;">Text</div>
+            <div style="flex:1;">Value</div>
+          </div>
           <ol id="node-input-option-container" style="list-style-type:none; margin:0;"></ol>
         </div>
         <div id="node-input-style-container-div"
           style="box-sizing:border-box; border-radius:5px; height:257px; padding:5px; border:1px solid #ccc; overflow-y:scroll; display:inline-block; width:100%">
+          <div
+            style="width:calc(100% - 60px);height:32px;display: flex;align-items: center; justify-content: center; border: 1px solid #efefef; text-align: center; position:sticky; top:0; background: white;margin-left: 20px;">
+            <div style="flex:1;">Background</div>
+            <div style="flex:1;">Font Color</div>
+            <div style="flex:1;">Font Size</div>
+            <div style="flex:1;">Font Weight</div>
+          </div>
           <ol id="node-input-style-container" style="list-style-type:none; margin:0;"></ol>
         </div>
       </div>
