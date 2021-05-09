@@ -83,15 +83,15 @@
         }
 
         function generateStyle(i, styles) {
-          var container = $('<li id="header-style-' + i + '" />', { style: "background: #fff; margin:0; padding:8px 0px 0px; border-bottom: 1px solid #ccc;" });
+          var container = $('<li id="header-style-' + i + '" style="background: #fff; margin:0; padding:8px 0px 0px; border-bottom: 1px solid #ccc;"/>');
           var row = $('<div/>').appendTo(container);
           var row2 = $('<div/>', { style: "padding-top:5px; padding-left:175px;" }).appendTo(container);
           var row3 = $('<div/>', { style: "padding-top:5px; padding-left:120px;" }).appendTo(container);
 
           $('<i style="color:#eee; cursor:move; margin-left:3px;" class="node-input-option-handle fa fa-bars"></i>').appendTo(row);
 
-          var backgroundField = $('<input/>', { class: "node-input-option-background", type: "color", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'background', value: styles.background }).appendTo(row);
-          var fontColorField = $('<input/>', { class: "node-input-option-fontColor", type: "color", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font color', value: styles.fontColor }).appendTo(row);
+          var backgroundField = $('<input/>', { class: "node-input-option-background", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'background', value: styles.background }).appendTo(row);
+          var fontColorField = $('<input/>', { class: "node-input-option-fontColor", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font color', value: styles.fontColor }).appendTo(row);
           var fontSizeField = $('<input/>', { class: "node-input-option-fontSize", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font size', value: styles.fontSize }).appendTo(row);
           var fontWeightField = $('<input/>', { class: "node-input-option-fontWeight", type: "text", style: "margin-left:7px; width:calc(25% - 20px);", placeholder: 'font weight', value: styles.fontWeight }).appendTo(row);
 
